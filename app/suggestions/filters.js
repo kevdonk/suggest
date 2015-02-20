@@ -1,19 +1,13 @@
 angular.module('suggestionFilters', [])
-//object filter adapted from Armin: http://stackoverflow.com/questions/14478106/angularjs-sorting-by-property to filter in descending order
-.filter('orderObjectBy', function(){
- return function(input, attribute) {
-    if (!angular.isObject(input)) return input;
-
-    var array = [];
-    for(var objectKey in input) {
-        array.push(input[objectKey]);
-    }
-
-    array.sort(function(a, b){
-        a = parseInt(a[attribute]);
-        b = parseInt(b[attribute]);
-        return b - a;
+//toArray filter from github user slundberg   https://github.com/angular/angular.js/issues/1286
+.filter('toArray', function() { return function(obj) {
+    if (!(obj instanceof Object)) return obj;
+    return _.map(obj, function(val, key) {
+        return Object.defineProperty(val, '$key', {__proto__: null, value: key});
     });
-    return array;
- };
+}})
+.filter('reverse', function() {
+  return function(list) {
+    return list.slice().reverse();
+  };
 });

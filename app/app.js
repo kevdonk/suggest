@@ -6,8 +6,8 @@ angular.module('suggest', [
   'suggestionFilters',
   'suggestions',
   'myApp.view2',
-]).
-config(['$routeProvider', function($routeProvider) {
+])
+.config(['$routeProvider', function($routeProvider) {
   $routeProvider.otherwise({redirectTo: '/suggestions'});
 }])
 ;

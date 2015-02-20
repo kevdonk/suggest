@@ -1,41 +1,16 @@
 'use strict';
 
-angular.module('suggestions', ['ngRoute'])
-
+angular.module('suggestions', ['ngRoute', 'firebase'])
+.constant('FIREBASE_URI', 'https://scorching-heat-9370.firebaseio.com/')
 .config(['$routeProvider', function($routeProvider) {
   $routeProvider.when('/suggestions', {
     templateUrl: 'suggestions/suggestions.html',
     controller: 'SuggestionsViewCtrl'
   });
 }])
-.controller('SuggestionsViewCtrl', ['$scope', function($scope) {
-  //suggestions - later will be populated by backend
-  $scope.suggestions = [
-    {
-      "id": 0,
-      "author": "Kevin",
-      "email": "kevin@mayoind.com",
-      "message": "You should add firebase for the backend!",
-      "category": "Features",
-      "rating": 55
-    },
-    {
-      "id": 1,
-      "author": "Donk",
-      "email": "notkevdonk@gmail.com",
-      "message": "This site is ugly - make it look nicer...",
-      "category": "Design",
-      "rating": 50
-    },
-    {
-      "id": 2,
-      "author": "qgyh2",
-      "email": "fake@email.com",
-      "message": "test post please ignore",
-      "category": "Misc",
-      "rating": 59
-    }
-  ];
+.controller('SuggestionsViewCtrl', ['$scope', 'SuggestionService', function($scope, SuggestionService) {
+  $scope.suggestions = SuggestionService.getSuggestions();
+
   //categories to filter suggestions
   $scope.categories = [
     { 
@@ -55,22 +30,17 @@ angular.module('suggestions', ['ngRoute'])
     }
     ];
   
-
-
   //increate/decrease rating
   function voteUp(suggest) {
-    var index = _.findIndex($scope.suggestions, function(s) {
-      return s.id == suggest.id;
-    });
-    $scope.suggestions[index].rating += 1;
-  }
+    suggest.rating += 1;
+    SuggestionService.editSuggestion(suggest);
+
+  };
 
   function voteDown(suggest) {
-    var index = _.findIndex($scope.suggestions, function(s) {
-      return s.id == suggest.id;
-    });
-    $scope.suggestions[index].rating -= 1;
-  }
+    suggest.rating -= 1;
+    SuggestionService.editSuggestion(suggest);
+  };
 
   $scope.voteUp = voteUp;
   $scope.voteDown = voteDown;
@@ -100,28 +70,28 @@ angular.module('suggestions', ['ngRoute'])
     $scope.isEditing = false;
 
     resetCreateForm();
-  }
+  };
 
   function cancelCreating() {
     $scope.isCreating = false;
-  }
+  };
 
   function startEditing() {
     $scope.isEditing = true;
     $scope.isCreating = false;
-  }
+  };
 
   function cancelEditing() {
     $scope.isEditing = false;
-  }
+  };
 
   function shouldShowCreating() {
     return $scope.currentCategory && $scope.isCreating && !$scope.isEditing;
-  }
+  };
 
   function shouldShowEditing() {
     return $scope.isEditing && !$scope.isCreating;
-  }
+  };
 
   $scope.startCreating = startCreating;
   $scope.cancelCreating = cancelCreating;
@@ -138,44 +108,30 @@ angular.module('suggestions', ['ngRoute'])
       email: '',
       message: ''
     }
-  }
+  };
 
-  //Make Suggestion
-  function makeSuggestion(suggest) {
-    suggest.rating = 0;
-    suggest.id = new Date();
-    $scope.suggestions.push(suggest);
+  $scope.makeSuggestion = function() {
+    SuggestionService.makeSuggestion($scope.newSuggest);
     resetCreateForm();
     $scope.isCreating = false;
-  }
-
-  $scope.makeSuggestion = makeSuggestion;
-
-  //Edit suggestion
+  };
+  
   $scope.editSuggest = null;
+  var setEditSuggestion = function(suggest) {
+    $scope.editSuggest = suggest;
+  };
+  $scope.setEditSuggestion = setEditSuggestion;
 
-  function setEditSuggestion(suggest) {
-    $scope.editSuggest = angular.copy(suggest);
-  }
-
-  function editSuggestion(suggest) {
-    var index = _.findIndex($scope.suggestions, function(s) {
-      return s.id == suggest.id;
-    });
-    $scope.suggestions[index] = suggest;
+  $scope.editSuggestion = function(id) {
+    setEditSuggestion(id);
+    SuggestionService.editSuggestion($scope.editSuggest)
     $scope.editSuggest = null;
     $scope.isEditing = false;
-  }
+  };
 
-  $scope.setEditSuggestion = setEditSuggestion;
-  $scope.editSuggestion = editSuggestion;
-
-  //Remove Suggestion
-  function removeSuggestion(suggest) {
-    $scope.suggestions = _.without($scope.suggestions, suggest);
-  }
-  $scope.removeSuggestion = removeSuggestion;
-
+  $scope.removeSuggestion = function(id) {
+    SuggestionService.removeSuggestion(id);
+  };
 
 }])
 .directive("makeForm", function() {
@@ -196,4 +152,36 @@ angular.module('suggestions', ['ngRoute'])
     templateUrl: "suggestions/rate-panel.html"
   };
 })
+.factory('SuggestionService', ['$firebase', 'FIREBASE_URI', function($firebase, FIREBASE_URI) {
+  var suggestions = $firebase(new Firebase(FIREBASE_URI)).$asArray();
+
+  //Return Suggestions
+  var getSuggestions = function() {
+    return suggestions;
+  }
+  //Make Suggestion
+  var makeSuggestion = function(suggest) {
+    suggest.rating = 0;
+    suggest.id = new Date();
+    suggestions.$add(suggest);
+  };
+
+  //Edit suggestion
+
+  var editSuggestion = function(id) {
+    suggestions.$save(id);
+  };
+
+  //Remove Suggestion
+  var removeSuggestion = function(id) {
+    suggestions.$remove(id);
+  };
+
+  return {
+    getSuggestions: getSuggestions,
+    makeSuggestion: makeSuggestion,
+    editSuggestion: editSuggestion,
+    removeSuggestion: removeSuggestion,
+  };
+}])
 ;
