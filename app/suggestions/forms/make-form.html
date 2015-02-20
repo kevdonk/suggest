@@ -1,0 +1,30 @@
+<form name="makeForm" class="form-horizontal" ng-show="isCreating" role="form" ng-submit="makeForm.$valid && makeSuggestion(newSuggest)" novalidate>
+  <div class="control-group">
+    <label class="control-label" for="newSuggestAuthor">author</label>
+    <div class="controls">
+      <input type="text" id="newSuggestAuthor" ng-model="newSuggest.author" placeholder="name" required>
+    </div>
+  </div>
+  <div class="control-group">
+    <label class="control-label" for="newSuggestEmail">e-mail</label>
+    <div class="controls">
+      <input type="email" id="newSuggestAuthor" ng-model="newSuggest.email" placeholder="e-mail" required>
+    </div>
+  </div>
+  <div class="control-group">
+    <label class="control-label" for="newSuggestCategory">category</label>
+    <div class="controls">
+      <select ng-model="newSuggest.category" required>
+        <option ng-repeat="cat in categories">{{cat.name}}</option>
+      </select>
+    </div>
+  </div>
+  <div class="control-group">
+    <label class="control-label" for="newSuggestMessage">suggestion</label>
+    <div class="controls">
+      <textarea id="newSuggestMessage" ng-model="newSuggest.message" placeholder="enter your suggestion" required></textarea>
+    </div>
+  </div>
+  <button type="submit" class="edit">Suggest!</button>
+  <button type="button" ng-click="cancelCreating()" class="remove">Cancel</button>
+</form>

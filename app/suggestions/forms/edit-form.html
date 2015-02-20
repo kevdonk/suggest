@@ -1,0 +1,30 @@
+<form name="editForm" class="form-horizontal" ng-show="isEditing" role="form" ng-submit="editForm.$valid && editSuggestion(editSuggest)" novalidate>
+  <div class="control-group">
+    <label class="control-label" for="editSuggestAuthor">author</label>
+    <div class="controls">
+      <input type="text" id="editSuggestAuthor" ng-model="editSuggest.author" placeholder="name" required>
+    </div>
+  </div>
+  <div class="control-group">
+    <label class="control-label" for="editSuggestEmail">e-mail</label>
+    <div class="controls">
+      <input type="email" id="editSuggestAuthor" ng-model="editSuggest.email" placeholder="e-mail" required>
+    </div>
+  </div>
+  <div class="control-group">
+    <label class="control-label" for="editSuggestCategory">category</label>
+    <div class="controls">
+      <select ng-model="editSuggest.category" required>
+        <option ng-repeat="cat in categories">{{cat.name}}</option>
+      </select>
+    </div>
+  </div>
+  <div class="control-group">
+    <label class="control-label" for="editSuggestMessage">suggestion</label>
+    <div class="controls">
+      <textarea id="editSuggestMessage" ng-model="editSuggest.message" placeholder="enter your suggestion" required></textarea>
+    </div>
+  </div>
+  <button type="submit" class="edit">Edit!</button>
+  <button type="button" ng-click="cancelEditing()" class="remove">Cancel</button>
+</form>
