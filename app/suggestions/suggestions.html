@@ -1,0 +1,35 @@
+<div ng-controller="SuggestionsViewCtrl">
+  <ul class="menu">
+    <li>
+      <button ng-click="setCurrentCategory(null)" ng-class="{'active': !currentCategory}">All</button>
+    </li>
+    <li ng-repeat="category in categories">
+      <button ng-click="setCurrentCategory(category)" ng-class="{'active':isCurrentCategory(category)}">{{category.name}}</button>
+    </li>
+  </ul>
+  <div class="container">
+    <div class="row text-center">
+      <button ng-click="startCreating()" ng-hide="isCreating || isEditing" class="suggest text-center">Make a Suggestion!</button>
+    </div>
+  <!-- Create Suggestion -->
+    <div class="row">
+      <make-form></make-form>
+    </div>
+
+  <!-- Edit Suggestion -->
+    <div class="row">
+      <edit-form></edit-form>
+    </div>
+
+  <!-- Display Suggestions -->
+  <section ng-repeat="suggestion in suggestions | orderObjectBy:'rating' | filter:{category:currentCategory.name}" ng-hide="isEditing || isCreating" ng-animate=" 'post' ">
+    <article class="post">
+      <rate-panel></rate-panel>
+      <button class="remove right" ng-click="removeSuggestion(suggestion)">X</button>
+      <button class="edit right" ng-click="setEditSuggestion(suggestion);startEditing()"><span class="glyphicon glyphicon-pencil"></span></button>
+      <span>{{suggestion.category}}</span><br><a ng-href="mailto: {{suggestion.email}}">{{suggestion.author}}</a><br>
+      {{suggestion.message}}   
+    </article>
+  </section>
+  </div>
+</div>
